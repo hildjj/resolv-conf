@@ -43,3 +43,4 @@ I looked at [resolv](https://github.com/fmahnke/resolv), but didn't feel like it
 
 [![Tests](https://github.com/hildjj/resolv-conf/workflows/Tests/badge.svg)](https://github.com/hildjj/resolv-conf/actions?query=workflow%3ATests)
 [![Coverage Status](https://coveralls.io/repos/github/hildjj/resolv-conf/badge.svg?branch=master)](https://coveralls.io/github/hildjj/resolv-conf?branch=master)
+[![RunKit](https://img.shields.io/static/v1?label=Try%20it%20online%20on&message=RunKit&color=f55fa6&logo=runkit)](https://runkit.com/hildjj/5feaeb406e1b55001a1211f9)
