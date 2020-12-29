@@ -1,7 +1,7 @@
 {
   "name": "resolv-conf",
   "version": "1.0.0",
-  "description": "",
+  "description": "Parse resolv.conf files",
   "main": "./lib/index.js",
   "scripts": {
     "test": "jest",
@@ -21,6 +21,12 @@
     "resolve",
     "resolver"
   ],
+  "repository": {
+    "type": "git",
+    "url": "http://github.com/hildjj/resolv-conf.git"
+  },
+  "homepage": "https://github.com/hildjj/resolv-conf",
+  "bugs": "https://github.com/hildjj/resolv-conf/issues",
   "author": "Joe Hildebrand <joe-github@cursive.net>",
   "license": "MIT",
   "devDependencies": {
