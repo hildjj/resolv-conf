@@ -6,7 +6,7 @@
   "scripts": {
     "test": "jest",
     "coverage": "jest --coverage",
-    "lint": "eslint",
+    "lint": "eslint bin/* lib/*[!peg].js test/*.js",
     "build": "pegjs -o lib/resolv.peg.js lib/resolv.pegjs",
     "precheck": "npm run lint && npm run test",
     "check": "npm pack --dry-run",

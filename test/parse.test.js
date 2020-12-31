@@ -173,7 +173,7 @@ test('sortlist', () => {
     }))
 })
 
-test('parseFile', async () => {
+test('parseFile', async() => {
   expect(await parseFile(path.join(__dirname, 'resolv.conf')))
     .toEqual(expect.objectContaining({
       nameserver: ['10.1.1.1']
