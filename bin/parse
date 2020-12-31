@@ -1,0 +1,49 @@
+#! /usr/bin/env node
+
+'use strict'
+
+// This is just a little test harness for playing with the parser.
+// Unlikely to be useful to anyone, and excluded from the release.
+
+const pegjs = require('pegjs')
+const Tracer = require('pegjs-backtrace')
+const fs = require('fs')
+const path = require('path')
+const Mod = require('module')
+
+const fn = path.join(__dirname, '..', 'lib', 'resolv.pegjs')
+require = Mod.createRequire(fn) // make 'require' relative to pegjs source
+
+const src = fs.readFileSync(fn, 'utf8')
+const p = pegjs.generate(src, {
+    trace: true,
+    output: 'source'
+})
+
+// see https://github.com/pegjs/pegjs/issues/363
+const { parse } = eval(p)
+
+function getText() {
+    return new Promise((resolve, reject) => {
+        let txt = process.argv.slice(2).join(' ')
+        if (txt) {
+            return resolve(txt)
+        }
+        process.stdin.setEncoding('utf8')
+        process.stdin.on('data', chunk => txt += chunk)
+        process.stdin.on('error', reject)
+        process.stdin.on('end', () => resolve(txt))
+    })
+}
+
+getText().then(txt => {
+    const tracer = new Tracer(txt, {
+        showTrace: true,
+        showSource: true
+    })
+    console.dir(parse(txt, {
+        tracer
+    }), {
+        depth: Infinity
+    })
+}, console.error)

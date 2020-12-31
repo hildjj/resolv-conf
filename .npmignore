@@ -7,3 +7,4 @@ jest.config.js
 node_modules/
 test/
 lib/*.pegjs
+bin/

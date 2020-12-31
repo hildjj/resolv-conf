@@ -1,6 +1,7 @@
 'use strict'
 
-const {parse} = require('../')
+const {parse, parseFile} = require('../')
+const path = require('path')
 
 const DEFAULTS = expect.objectContaining({
   nameserver: [ '127.0.0.1', '::1' ],
@@ -14,6 +15,7 @@ test('parser errors', () => {
   expect(() => parse('', {startRule:'foo'})).toThrow()
   expect(() => parse('', {startRule:'comment'})).toThrow()
   expect(() => parse('nameserver ::1 \b')).toThrow()
+  expect(() => parse(':')).toThrow()
 })
 
 test('empty', () => {
@@ -27,6 +29,7 @@ test('empty', () => {
 })
 
 test('comments', () => {
+  expect(parse('#')).toEqual(DEFAULTS)
   expect(parse('# foo')).toEqual(DEFAULTS)
   expect(parse('; foo')).toEqual(DEFAULTS)
 
@@ -61,6 +64,17 @@ test('errors', () => {
     ])
   }))
 
+  expect(parse('nameserver')).toEqual(expect.objectContaining({
+    errors: [expect.objectContaining({ text: 'nameserver' })]
+  }))
+  expect(parse('nameserverz')).toEqual(expect.objectContaining({
+    errors: [expect.objectContaining({ text: 'nameserverz' })]
+  }))
+  expect(parse('nameserver zzz')).toEqual(expect.objectContaining({
+    errors: [expect.objectContaining({ text: 'nameserver zzz' })]
+  }))
+  expect(() => parse('nameserver ::1 z')).toThrow()
+  expect(() => parse('nameserver ::1z')).toThrow()
   expect(parse('nameserver 256.1.1.1')).toEqual(expect.objectContaining({
     errors: expect.arrayContaining([
       expect.objectContaining({
@@ -68,10 +82,35 @@ test('errors', () => {
       })
     ])
   }))
+  expect(() => parse('search foo bar baz :')).toThrow()
+  expect(parse('domain :')).toEqual(expect.objectContaining({
+    errors: [expect.objectContaining({ text: 'domain :' })]
+  }))
+  expect(parse('domain')).toEqual(expect.objectContaining({
+    errors: [expect.objectContaining({ text: 'domain' })]
+  }))
+  expect(parse('options')).toEqual(expect.objectContaining({
+    errors: [expect.objectContaining({ text: 'options' })]
+  }))
+  expect(parse('options :')).toEqual(expect.objectContaining({
+    errors: [expect.objectContaining({ text: 'options :' })]
+  }))
+  expect(() => parse('options foo::')).toThrow()
+  expect(parse('sortlist')).toEqual(expect.objectContaining({
+    errors: [expect.objectContaining({ text: 'sortlist' })]
+  }))
+  expect(parse('sortlist /')).toEqual(expect.objectContaining({
+    errors: [expect.objectContaining({ text: 'sortlist /' })]
+  }))
+  expect(() => parse('sortlist 127.0.0.1/127.255.255.255 /')).toThrow()
+  expect(() => parse('sortlist 127.0.0.1/300')).toThrow()
 })
 
 test('nameserver', () => {
   expect(parse('nameserver ::1')).toEqual(expect.objectContaining({
+    nameserver: ['::1']
+  }))
+  expect(parse('nameserver ::1\t')).toEqual(expect.objectContaining({
     nameserver: ['::1']
   }))
   expect(parse('nameserver 10.1.1.1')).toEqual(expect.objectContaining({
@@ -82,25 +121,32 @@ nameserver fe80::1
 nameserver 10.99.1.1`)).toEqual(expect.objectContaining({
     nameserver: ['fe80::1', '10.99.1.1']
   }))
+  expect(parse('search')).toEqual(expect.objectContaining({
+    errors: [expect.objectContaining({ text: 'search' })]
+  }))
+  expect(parse('search ')).toEqual(expect.objectContaining({
+    errors: [expect.objectContaining({ text: 'search ' })]
+  }))
+  expect(() => parse('search foo :')).toThrow()
 })
 
 test('search', () => {
   expect(parse('search example.com')).toEqual(expect.objectContaining({
-    search: ['example.com']
+    search: ['example.com.']
   }))
-  expect(parse('search foo.example.com example.com'))
+  expect(parse('search foo.example.com example.com  '))
     .toEqual(expect.objectContaining({
-      search: ['foo.example.com', 'example.com']
+      search: ['foo.example.com.', 'example.com.']
     }))
   // overwrite
   expect(parse(`\
 search foo.example.com example.com
-search foo.example`))
+search foo.example.`))
     .toEqual(expect.objectContaining({
-      search: ['foo.example']
+      search: ['foo.example.']
     }))
   expect(parse('domain example.com')).toEqual(expect.objectContaining({
-    search: ['example.com']
+    search: ['example.com.']
   }))
 })
 
@@ -124,5 +170,12 @@ test('sortlist', () => {
         address: '130.155.0.0',
         mask: null
       }]
+    }))
+})
+
+test('parseFile', async () => {
+  expect(await parseFile(path.join(__dirname, 'resolv.conf')))
+    .toEqual(expect.objectContaining({
+      nameserver: ['10.1.1.1']
     }))
 })
