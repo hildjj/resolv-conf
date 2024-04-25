@@ -2,10 +2,14 @@
 .eslintignore
 .eslintrc.js
 .github/
+.ncurc
+.vscode/
+ava.config.js
+bin/
 coverage/
+eslint.config.js
 jest.config.js
+lib/*.pegjs
 node_modules/
 test/
-lib/*.pegjs
-bin/
-.vscode/
+.c8rc
