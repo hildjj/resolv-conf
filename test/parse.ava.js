@@ -1,7 +1,9 @@
 import {parse, parseFile} from '../lib/index.js';
 import {fileURLToPath} from 'url';
 import {ish} from './utils.js';
+import {parse as peggyParse} from '../lib/resolv.peg.js';
 import test from 'ava';
+import {testPeggy} from '@peggyjs/coverage';
 
 const DEFAULTS = {
   nameserver: ['127.0.0.1', '::1'],
@@ -12,10 +14,10 @@ const DEFAULTS = {
 };
 
 test('parser errors', t => {
-  t.throws(() => parse('', {startRule: 'foo'}));
-  t.throws(() => parse('', {startRule: 'comment'}));
-  t.throws(() => parse('nameserver ::1 \b'));
-  t.throws(() => parse(':'));
+  t.throws(() => peggyParse('', {startRule: 'foo'}));
+  t.throws(() => peggyParse('', {startRule: 'comment'}));
+  t.throws(() => peggyParse('nameserver ::1 \b'));
+  t.throws(() => peggyParse(':'));
 });
 
 test('empty', t => {
@@ -99,7 +101,7 @@ test('errors', t => {
     'sortlist 127.0.0.1/300',
     'search foo :',
   ]) {
-    t.throws(() => parse(e), {message: /^Expected .*but.*found.$/});
+    t.throws(() => peggyParse(e), {message: /^Expected .*but.*found.$/});
   }
 });
 
@@ -151,4 +153,22 @@ test('parseFile', async t => {
   ish(t, await parseFile(rc), {
     nameserver: ['10.1.1.1'],
   });
+  await t.throwsAsync(() => parseFile(' __ NO __ SUCH __ FILE'));
+  await t.throwsAsync(() => parseFile(new URL('bad.conf', import.meta.url)));
+});
+
+test('peggyTest', async t => {
+  await testPeggy(new URL('../lib/resolv.peg.js', import.meta.url), [
+    {
+      validInput: '',
+      validResult(res) {
+        ish(t, res, DEFAULTS);
+        return res;
+      },
+    },
+    {
+      invalidInput: '\xFFFF',
+    },
+  ]);
+  t.pass();
 });
