@@ -4,10 +4,10 @@ import mod from '@cto.af/eslint-config/module.js';
 export default [
   {
     ignores: [
-      'lib/**',
       'docs/**',
       'coverage/**',
       '**/*.peg.js',
+      '**/*.d.ts',
     ],
   },
   ...base,

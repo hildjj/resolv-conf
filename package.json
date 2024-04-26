@@ -5,13 +5,9 @@
   "main": "./lib/index.js",
   "type": "module",
   "scripts": {
-    "test": "ava",
-    "coverage": "c8 npm test",
+    "test": "c8 ava",
     "lint": "eslint .",
-    "build": "peggy --format es -o lib/resolv.peg.js lib/resolv.pegjs",
-    "precheck": "npm run lint && npm run test",
-    "check": "npm pack --dry-run",
-    "release": "npm version patch && git push --follow-tags && npm publish"
+    "build": "peggy --format es -o lib/resolv.peg.js lib/resolv.pegjs && tsc"
   },
   "keywords": [
     "resolv",
@@ -33,6 +29,7 @@
   "devDependencies": {
     "@cto.af/eslint-config": "^4.0.2",
     "@peggyjs/coverage": "1.0.0",
+    "@types/node": "20.12.7",
     "ava": "^6.1.2",
     "c8": "^9.1.0",
     "eslint": "^8.57.0",

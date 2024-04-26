@@ -13,3 +13,4 @@ lib/*.pegjs
 node_modules/
 test/
 .c8rc
+tsconfig.json
