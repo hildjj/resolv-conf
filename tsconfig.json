@@ -2,6 +2,9 @@
   "files": [
     "lib/index.js",
   ],
+  "exclude": [
+    "lib/resolv.peg.js"
+  ],
   "compilerOptions": {
     /* Visit https://aka.ms/tsconfig to read more about this file */
 
