@@ -34,6 +34,11 @@ const config = await parseFile();  // filename is optional
 const config2 = parse(text);
 ```
 
+## Options
+
+Options will have dashes turned into underscores.  For example, `no-aaaa` will be
+available as `config.options.no_aaaa`.
+
 ## Errors
 
 Unrecoverable parse errors will throw an exception with `location`,
@@ -42,14 +47,6 @@ Unrecoverable parse errors will throw an exception with `location`,
 Recoverable errors (e.g. invalid IP addresses) will show up in the result
 object in the `errors` property, and valid defaults will be chosen for that
 option if need be.
-
-## Other libraries
-
-I looked at [resolv](https://github.com/fmahnke/resolv), but didn't feel like
-it was close enough to what I needed, it didn't have tests, etc.  Since the
-project hadn't been touched in several years, I figured it was easier to start
-over.  (Sorry, @fmahnke; let me know if that was a bad assumption and I'm
-happy to collaborate.)
 
 ## Status
 
