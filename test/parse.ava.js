@@ -16,7 +16,6 @@ const DEFAULTS = {
 test('parser errors', t => {
   t.throws(() => peggyParse('', {startRule: 'foo'}));
   t.throws(() => peggyParse('', {startRule: 'comment'}));
-  t.throws(() => peggyParse('nameserver ::1 \b'));
   t.throws(() => peggyParse(':'));
 });
 
@@ -52,6 +51,9 @@ options foo # bar
 });
 
 test('errors', t => {
+  const oldSTL = Error.stackTraceLimit;
+  Error.stackTraceLimit = Infinity;
+
   ish(t, parse('\n\n\nfoo bar\n\n\n'), {
     errors: [
       {
@@ -79,30 +81,40 @@ test('errors', t => {
     'nameserverz',
     'nameserver zzz',
     'nameserver 256.1.1.1',
+    'nameserver ::1 \b',
+    'nameserver ::1 z',
+    'nameserver ::1z',
+    'nameserver 64:ff9bfffffffffffffffffffff::192.0.2.1.999',
+    'nameserver ::1.a',
+    'nameserver 127.0.0.1.a',
+    'nameserver 10.1.1.1a',
     'domain',
     'domain :',
+    'domain example.com :',
     'options',
     'options :',
+    'options foo::',
+    'port',
+    'port a',
     'sortlist',
     'sortlist /',
+    'sortlist 127.0.0.1/127.255.255.255 /',
+    'sortlist 127.0.0.1/300',
     'search',
     'search ',
+    'search foo bar baz :',
+    'search foo :',
   ]) {
     ish(t, parse(e), {errors: [{text: e}]});
   }
 
   // Various exceptions:
   for (const e of [
-    'nameserver ::1 z',
-    'nameserver ::1z',
-    'search foo bar baz :',
-    'options foo::',
-    'sortlist 127.0.0.1/127.255.255.255 /',
-    'sortlist 127.0.0.1/300',
-    'search foo :',
+    'port 70000',
   ]) {
-    t.throws(() => peggyParse(e), {message: /^Expected .*but.*found.$/});
+    t.throws(() => peggyParse(e));
   }
+  Error.stackTraceLimit = oldSTL;
 });
 
 test('nameserver', t => {
@@ -148,13 +160,34 @@ test('sortlist', t => {
   });
 });
 
-test('parseFile', async t => {
-  const rc = fileURLToPath(new URL('resolv.conf', import.meta.url));
+test('port', t => {
+  ish(t, parse('port 0'), {port: {'': 0}});
+  ish(t, parse('port 12'), {port: {'': 12}});
+  ish(t, parse('port 123'), {port: {'': 123}});
+  ish(t, parse('port 1234'), {port: {'': 1234}});
+  ish(t, parse('port 1234a'), {port: {'': 1234}});
+});
+
+test('linux parseFile', async t => {
+  const rc = fileURLToPath(new URL('linux.resolv.conf', import.meta.url));
   ish(t, await parseFile(rc), {
     nameserver: ['10.1.1.1'],
   });
   await t.throwsAsync(() => parseFile(' __ NO __ SUCH __ FILE'));
   await t.throwsAsync(() => parseFile(new URL('bad.conf', import.meta.url)));
+});
+
+test('MacOS parseFile', async t => {
+  const rc = new URL('macos.resolv.conf', import.meta.url);
+  ish(t, await parseFile(rc), {
+    nameserver: ['10.1.1.1', '::1', '64:ff9b::192.0.2.128'],
+    port: {
+      '': 53,
+      '10.1.1.1': 678,
+      '::1': 780,
+      '64:ff9b::192.0.2.128': 999,
+    },
+  });
 });
 
 test('peggyTest', async t => {
@@ -166,9 +199,8 @@ test('peggyTest', async t => {
         return res;
       },
     },
-    {
-      invalidInput: '\xFFFF',
-    },
+    {invalidInput: '\xFFFF'},
+    {invalidInput: 'port 70000'},
   ]);
   t.pass();
 });
