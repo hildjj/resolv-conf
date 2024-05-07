@@ -104,11 +104,18 @@ test('errors', t => {
     'search ',
     'search foo bar baz :',
     'search foo :',
+    'timeout',
     'timeout:',
     'timeout :',
     'timeout 1:',
     'timeout 10:',
     'timeout 100:',
+    'search_order',
+    'search_order ',
+    'search_order :',
+    'search_order 1:',
+    'search_order 10:',
+    'search_order 100:',
   ]) {
     ish(t, parse(e), {errors: [{text: e}]});
   }
