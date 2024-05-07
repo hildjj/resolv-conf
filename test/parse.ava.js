@@ -116,6 +116,20 @@ test('errors', t => {
     'search_order 1:',
     'search_order 10:',
     'search_order 100:',
+    'lookup',
+    'lookup ',
+    'lookup:',
+    'lookup :',
+    'lookup file:',
+    'lookup file :',
+    'lookup file yp:',
+    'lookup file yp :',
+    'family',
+    'family:',
+    'family :',
+    'family inet4:',
+    'family inet4 :',
+    'family inet3',
   ]) {
     ish(t, parse(e), {errors: [{text: e}]});
   }
@@ -203,6 +217,30 @@ test('MacOS parseFile', async t => {
       '10.1.1.1': 678,
       '::1': 780,
       '64:ff9b::192.0.2.128': 999,
+    },
+    timeout: 30,
+    search_order: 1,
+  });
+});
+
+test('BSD parseFile', async t => {
+  const rc = new URL('bsd.resolv.conf', import.meta.url);
+  ish(t, await parseFile(rc), {
+    nameserver: ['127.0.0.1', '::1'],
+    port: {
+      '': 53,
+      '127.0.0.1': 53,
+      '::1': 53,
+    },
+    family: ['inet6', 'inet4'],
+    lookup: ['file', 'yp', 'bind'],
+    options: {
+      debug: true,
+      edns0: true,
+      inet6: true,
+      insecure1: true,
+      insecure2: true,
+      tcp: true,
     },
   });
 });
