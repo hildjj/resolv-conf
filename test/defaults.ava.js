@@ -32,6 +32,11 @@ test('LOCALDOMAIN', t => {
     options: {
       ndots: 1,
     },
+    port: {
+      '': 53,
+      '127.0.0.1': 53,
+      '::1': 53,
+    },
     search: [],
   });
   process.env.LOCALDOMAIN = 'baz bag';
@@ -41,6 +46,11 @@ test('LOCALDOMAIN', t => {
     nameserver: ['127.0.0.1', '::1'],
     options: {
       ndots: 1,
+    },
+    port: {
+      '': 53,
+      '127.0.0.1': 53,
+      '::1': 53,
     },
     search: ['baz.', 'bag.'],
   });
