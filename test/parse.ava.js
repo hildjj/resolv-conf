@@ -104,6 +104,11 @@ test('errors', t => {
     'search ',
     'search foo bar baz :',
     'search foo :',
+    'timeout:',
+    'timeout :',
+    'timeout 1:',
+    'timeout 10:',
+    'timeout 100:',
   ]) {
     ish(t, parse(e), {errors: [{text: e}]});
   }
@@ -168,6 +173,11 @@ test('port', t => {
   ish(t, parse('port 1234a'), {port: {'': 1234}});
 });
 
+test('timeout', t => {
+  ish(t, parse('timeout 10'), {timeout: 10});
+  ish(t, parse('timeout 10\ntimeout 20'), {timeout: 20});
+});
+
 test('linux parseFile', async t => {
   const rc = fileURLToPath(new URL('linux.resolv.conf', import.meta.url));
   ish(t, await parseFile(rc), {
@@ -199,8 +209,77 @@ test('peggyTest', async t => {
         return res;
       },
     },
-    {invalidInput: '\xFFFF'},
+    {invalidInput: '\uFFFF'},
     {invalidInput: 'port 70000'},
+    {
+      invalidInput: ':',
+      options: {
+        peg$silentFails: -1,
+        peg$startRuleFunction: 'peg$parsecomment',
+      },
+    },
+    {
+      validInput: '#',
+      validResult: undefined,
+      invalid: '',
+      peg$maxFailPos: 1,
+      options: {
+        peg$silentFails: -1,
+        peg$startRuleFunction: 'peg$parsecomment',
+      },
+    },
+    {
+      validInput: '# ',
+      validResult: undefined,
+      invalid: '',
+      peg$maxFailPos: 2,
+      options: {
+        peg$silentFails: -1,
+        peg$startRuleFunction: 'peg$parsecomment',
+      },
+    },
+    {
+      validInput: '',
+      validResult: [],
+      invalid: '',
+      options: {
+        peg$silentFails: -1,
+        peg$startRuleFunction: 'peg$parses',
+      },
+    },
+    {
+      validInput: ' ',
+      validResult: [' '],
+      invalid: '',
+      peg$maxFailPos: 1,
+      options: {
+        peg$silentFails: -1,
+        peg$startRuleFunction: 'peg$parses',
+      },
+    },
+    {
+      invalidInput: '',
+      options: {
+        peg$silentFails: -1,
+        peg$startRuleFunction: 'peg$parseS',
+      },
+    },
+    {
+      validInput: ' ',
+      validResult: [' '],
+      peg$maxFailPos: 1,
+      options: {
+        peg$silentFails: -1,
+        peg$startRuleFunction: 'peg$parseS',
+      },
+    },
+    {
+      invalidInput: '',
+      options: {
+        peg$silentFails: -1,
+        peg$startRuleFunction: 'peg$parseeol',
+      },
+    },
   ]);
   t.pass();
 });
