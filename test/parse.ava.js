@@ -1,5 +1,5 @@
 import {parse, parseFile} from '../lib/index.js';
-import {fileURLToPath} from 'url';
+import {fileURLToPath} from 'node:url';
 import {ish} from './utils.js';
 import {parse as peggyParse} from '../lib/resolv.peg.js';
 import test from 'ava';

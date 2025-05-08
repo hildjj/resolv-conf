@@ -3,7 +3,7 @@ import test from 'ava';
 
 const origEnv = {...process.env};
 
-test.afterEach.always(t => {
+test.afterEach.always(() => {
   process.env = origEnv;
 });
 
