@@ -1,4 +1,4 @@
-import {format} from 'util';
+import {format} from 'node:util';
 
 /**
  * In the context of an ava test, compare a target with a selector.  Target
