@@ -1,6 +1,6 @@
 {
   "name": "resolv-conf",
-  "version": "3.0.2",
+  "version": "3.0.3",
   "description": "Parse resolv.conf files",
   "main": "./lib/index.js",
   "type": "module",
